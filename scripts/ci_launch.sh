@@ -203,7 +203,7 @@ for (( i=1; i<=$SATNUM; i++ )); do
         generic-reactionwheel-sim2 generic-radio-sim sample-sim \
         generic-star-tracker-sim generic-thruster-sim generic-torquer-sim; do
 
-        if [[ "$sim" == "generic_radio_sim" ]]; then
+        if [[ "$sim" == "generic-radio-sim" ]]; then
             $DCALL run -d --name ${SC_NUM}-${sim} --network=$SC_NET \
                 -p 6010:6010/udp \
                 -h radio-sim --network-alias=radio-sim \

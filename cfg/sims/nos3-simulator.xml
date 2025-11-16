@@ -517,7 +517,7 @@
         </simulator>
 
         <simulator>
-            <name>generic_radio_sim</name>
+            <name>generic-radio-sim</name>
             <active>true</active>
             <library>libgeneric_radio_sim.so</library>
             <hardware-model>

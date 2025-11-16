@@ -171,6 +171,7 @@ for (( i=1; i<=$SATNUM; i++ )); do
 
     echo "$SC_NUM - Flight Software..."
     $DCALL run -dit --name ${SC_NUM}_nos_fsw -h nos-fsw --network=$SC_NET \
+        -p 5012:5012/udp \
         -v "$BASE_DIR:$BASE_DIR" -v "$FSW_DIR:$FSW_DIR" -v "$SCRIPT_DIR:$SCRIPT_DIR" \
         -e USER=$(whoami) -e LD_LIBRARY_PATH=$FSW_DIR:/usr/lib:/usr/local/lib \
         -w $FSW_DIR --sysctl fs.mqueue.msg_max=10000 --ulimit rtprio=99 --cap-add=sys_nice \
@@ -190,6 +191,7 @@ for (( i=1; i<=$SATNUM; i++ )); do
         /usr/bin/nos_engine_server_standalone -f $SIM_BIN/nos_engine_server_config.json
 
     $DCALL run -dit --name ${SC_NUM}-truth42sim --network=$SC_NET \
+        -p 5110:5110/udp \
         -h truth42sim --log-driver json-file --log-opt max-size=5m --log-opt max-file=3 \
         -v "$SIM_DIR:$SIM_DIR" -w "$SIM_BIN" $DBOX \
         ./nos3-single-simulator $CFG_FILE truth42sim
@@ -203,6 +205,7 @@ for (( i=1; i<=$SATNUM; i++ )); do
 
         if [[ "$sim" == "generic_radio_sim" ]]; then
             $DCALL run -d --name ${SC_NUM}-${sim} --network=$SC_NET \
+                -p 6010:6010/udp \
                 -h radio-sim --network-alias=radio-sim \
                 -v "$SIM_DIR:$SIM_DIR" -w "$SIM_BIN" $DBOX \
                 ./nos3-single-simulator $CFG_FILE $sim

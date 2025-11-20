@@ -539,7 +539,7 @@
                         <name>radio</name>
                         <!-- Force Command Listener to bind all interfaces (allowing OpenC3 to connect)
                         <ip>radio-sim</ip> -->
-                        <ip>0.0.0.0</ip>
+                        <ip>radio-sim</ip>
                         <cmd-port>5014</cmd-port>
                     </connection>
                     <connection>

@@ -544,7 +544,7 @@
                         <name>gsw</name>
                         <!-- Direct to ground -->
 						<!-- Replace 'cosmos' with DNS of openc3 operator NLB DNS -->
-                        <ip>openc3-satsim-nlb-22c6f2bcb6d4bdc3.elb.us-east-1.amazonaws.com</ip>
+                        <ip>nos.saberdev.xyz</ip>
                         <cmd-port>6010</cmd-port>
                         <tlm-port>6011</tlm-port>
                         <!-- CryptoLib TC Only -->

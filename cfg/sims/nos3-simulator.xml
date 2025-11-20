@@ -537,7 +537,9 @@
                     </connection>
                     <connection>
                         <name>radio</name>
-                        <ip>radio-sim</ip>
+                        <!-- Force Command Listener to bind all interfaces (allowing OpenC3 to connect)
+                        <ip>radio-sim</ip> -->
+                        <ip>0.0.0.0</ip>
                         <cmd-port>5014</cmd-port>
                     </connection>
                     <connection>

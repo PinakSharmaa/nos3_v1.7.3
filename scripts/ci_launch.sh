@@ -207,7 +207,7 @@ for (( i=1; i<=$SATNUM; i++ )); do
 
         if [[ "$sim" == "generic-radio-sim" ]]; then
             $DCALL run -d --name ${SC_NUM}-${sim} --network=$SC_NET \
-                -p 6010:6010 \
+                #-p 6010:6010 \
                 -h radio-sim --network-alias=radio-sim \
                 -v "$SIM_DIR:$SIM_DIR" -w "$SIM_BIN" $DBOX \
                 ./nos3-single-simulator $CFG_FILE $sim

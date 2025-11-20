@@ -179,8 +179,8 @@ for (( i=1; i<=$SATNUM; i++ )); do
 
     echo "$SC_NUM - CryptoLib..."
     $DCALL run -d --name ${SC_NUM}-cryptolib --network=$SC_NET \
-        -p 6010:6010 \
-        -p 6011:6011 \
+        -p 6010:6010/udp \
+        -p 6011:6011/udp \
         --log-driver json-file --log-opt max-size=5m --log-opt max-file=3 \
         --network-alias=cryptolib \
         -v "$BASE_DIR:$BASE_DIR" -w "$BASE_DIR/gsw/build" $DBOX ./support/standalone

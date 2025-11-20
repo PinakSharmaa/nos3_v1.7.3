@@ -555,7 +555,7 @@
                         <tlm-port>6011</tlm-port> -->
                         <!-- CryptoLib TC & TM -->
 
-=                       <ip>cryptolib</ip>
+                        <ip>cryptolib</ip>
                         <cmd-port>8010</cmd-port>
                         <tlm-port>8011</tlm-port>
 						

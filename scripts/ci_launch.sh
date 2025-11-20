@@ -178,7 +178,7 @@ for (( i=1; i<=$SATNUM; i++ )); do
         $DBOX bash -c "exec ./core-cpu1 -R PO"
 
     echo "$SC_NUM - CryptoLib..."
-    OPENC3_NLB_IP = "nos.saberdev.xyz"
+    OPENC3_NLB_IP="nos.saberdev.xyz"
     $DCALL run -d --name ${SC_NUM}-cryptolib --network=$SC_NET \
         -p 6010:6010/udp \
         -p 6011:6011/udp \

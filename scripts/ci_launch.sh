@@ -179,10 +179,20 @@ for (( i=1; i<=$SATNUM; i++ )); do
 
     echo "$SC_NUM - CryptoLib..."
     OPENC3_NLB_IP="nos.saberdev.xyz"
+    # 2. Resolve it to an IP address using 'dig' or 'getent'
+    # We use 'head -n 1' to ensure we only get one IP if the DNS returns multiple
+    OPENC3_IP=$(dig +short $OPENC3_NLB_HOST | head -n 1)
+
+    # Fallback check: If IP is empty, fail or default (optional but recommended)
+    if [ -z "$OPENC3_IP" ]; then
+        echo "Error: Could not resolve IP for $OPENC3_NLB_HOST"
+        exit 1
+    fi
+    echo "Resolved OpenC3 Host $OPENC3_NLB_HOST to IP $OPENC3_IP"
     $DCALL run -d --name ${SC_NUM}-cryptolib --network=$SC_NET \
         -p 6010:6010/udp \
         -p 6011:6011/udp \
-        --add-host cosmos:$OPENC3_NLB_IP
+        --add-host cosmos:$OPENC3_NLB_IP\
         --log-driver json-file --log-opt max-size=5m --log-opt max-file=3 \
         --network-alias=cryptolib \
         -v "$BASE_DIR:$BASE_DIR" -w "$BASE_DIR/gsw/build" $DBOX ./support/standalone

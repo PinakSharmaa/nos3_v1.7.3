@@ -178,17 +178,28 @@ for (( i=1; i<=$SATNUM; i++ )); do
         $DBOX bash -c "exec ./core-cpu1 -R PO"
 
     echo "$SC_NUM - CryptoLib..."
-    OPENC3_NLB_IP="nos.saberdev.xyz"
-    # 2. Resolve it to an IP address using 'dig' or 'getent'
-    # We use 'head -n 1' to ensure we only get one IP if the DNS returns multiple
-    OPENC3_IP=$(dig +short $OPENC3_NLB_HOST | head -n 1)
-
-    # Fallback check: If IP is empty, fail or default (optional but recommended)
-    if [ -z "$OPENC3_IP" ]; then
-        echo "Error: Could not resolve IP for $OPENC3_NLB_HOST"
+    # 1. Define the target Hostname
+    TARGET_HOST="nos.saberdev.xyz"
+    # 2. Resolve IP using Python (most reliable on AWS AMIs)
+    #    or fall back to getent/awk if python isn't there.
+    if command -v python3 &> /dev/null; then
+        OPENC3_IP=$(python3 -c "import socket; print(socket.gethostbyname('$TARGET_HOST'))")
+    else
+        # Fallback to getent (standard Linux resolver)
+        OPENC3_IP=$(getent hosts $TARGET_HOST | awk '{ print $1 }' | head -n 1)
+    fi
+    # 3. Validate we actually got an IP
+    #    Regex checks for standard IPv4 format (X.X.X.X)
+    if [[ ! $OPENC3_IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "----------------------------------------------------------------"
+        echo "ERROR: Could not resolve valid IP for host: $TARGET_HOST"
+        echo "Got value: '$OPENC3_IP'"
+        echo "Please check DNS or manually set OPENC3_IP in the script."
+        echo "----------------------------------------------------------------"
         exit 1
     fi
-    echo "Resolved OpenC3 Host $OPENC3_NLB_HOST to IP $OPENC3_IP"
+
+    echo "Resolved $TARGET_HOST to IPv4: $OPENC3_IP"
     $DCALL run -d --name ${SC_NUM}-cryptolib --network=$SC_NET \
         -p 6010:6010/udp \
         -p 6011:6011/udp \

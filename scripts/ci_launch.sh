@@ -178,9 +178,11 @@ for (( i=1; i<=$SATNUM; i++ )); do
         $DBOX bash -c "exec ./core-cpu1 -R PO"
 
     echo "$SC_NUM - CryptoLib..."
+    OPENC3_NLB_IP = "nos.saberdev.xyz"
     $DCALL run -d --name ${SC_NUM}-cryptolib --network=$SC_NET \
         -p 6010:6010/udp \
         -p 6011:6011/udp \
+        --add-host cosmos:$OPENC3_NLB_IP
         --log-driver json-file --log-opt max-size=5m --log-opt max-file=3 \
         --network-alias=cryptolib \
         -v "$BASE_DIR:$BASE_DIR" -w "$BASE_DIR/gsw/build" $DBOX ./support/standalone

@@ -7,6 +7,10 @@ GSW="cosmos"
 # Parse GSW selection
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --no-gsw)
+      GSW="none"
+      shift
+      ;;
     --use-yamcs)
       GSW="yamcs"
       shift
@@ -147,6 +151,32 @@ for (( i=1; i<=$SATNUM; i++ )); do
     $DNETWORK rm $SC_NET 2>/dev/null || true
     $DNETWORK create $SC_NET
 
+    #### Resolve OpenC3 NLB IP ####
+
+    # 1. Define the target Hostname
+    TARGET_HOST="nos.saberdev.xyz"
+    # 2. Resolve IP using Python (most reliable on AWS AMIs)
+    #    or fall back to getent/awk if python isn't there.
+    if command -v python3 &> /dev/null; then
+        OPENC3_IP=$(python3 -c "import socket; print(socket.gethostbyname('$TARGET_HOST'))")
+    else
+        # Fallback to getent (standard Linux resolver)
+        OPENC3_IP=$(getent hosts $TARGET_HOST | awk '{ print $1 }' | head -n 1)
+    fi
+    # 3. Validate we actually got an IP
+    #    Regex checks for standard IPv4 format (X.X.X.X)
+    if [[ ! $OPENC3_IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "----------------------------------------------------------------"
+        echo "ERROR: Could not resolve valid IP for host: $TARGET_HOST"
+        echo "Got value: '$OPENC3_IP'"
+        echo "Please check DNS or manually set OPENC3_IP in the script."
+        echo "----------------------------------------------------------------"
+        exit 1
+    fi
+    #####
+
+    echo "Resolved $TARGET_HOST to IPv4: $OPENC3_IP"
+
     echo "$SC_NUM - Create spacecraft network..."
     echo "$SC_NUM - Connect GSW to spacecraft network..."
     $DNETWORK connect $SC_NET cosmos-openc3-operator-1 --alias cosmos --alias active-gs
@@ -178,28 +208,6 @@ for (( i=1; i<=$SATNUM; i++ )); do
         $DBOX bash -c "exec ./core-cpu1 -R PO"
 
     echo "$SC_NUM - CryptoLib..."
-    # 1. Define the target Hostname
-    TARGET_HOST="nos.saberdev.xyz"
-    # 2. Resolve IP using Python (most reliable on AWS AMIs)
-    #    or fall back to getent/awk if python isn't there.
-    if command -v python3 &> /dev/null; then
-        OPENC3_IP=$(python3 -c "import socket; print(socket.gethostbyname('$TARGET_HOST'))")
-    else
-        # Fallback to getent (standard Linux resolver)
-        OPENC3_IP=$(getent hosts $TARGET_HOST | awk '{ print $1 }' | head -n 1)
-    fi
-    # 3. Validate we actually got an IP
-    #    Regex checks for standard IPv4 format (X.X.X.X)
-    if [[ ! $OPENC3_IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        echo "----------------------------------------------------------------"
-        echo "ERROR: Could not resolve valid IP for host: $TARGET_HOST"
-        echo "Got value: '$OPENC3_IP'"
-        echo "Please check DNS or manually set OPENC3_IP in the script."
-        echo "----------------------------------------------------------------"
-        exit 1
-    fi
-
-    echo "Resolved $TARGET_HOST to IPv4: $OPENC3_IP"
     $DCALL run -d --name ${SC_NUM}-cryptolib --network=$SC_NET \
         -p 6010:6010/udp \
         -p 6011:6011/udp \
@@ -217,6 +225,7 @@ for (( i=1; i<=$SATNUM; i++ )); do
 
     $DCALL run -dit --name ${SC_NUM}-truth42sim --network=$SC_NET \
         -p 5110:5110/udp \
+        --add-host cosmos:$OPENC3_IP \
         -h truth42sim --log-driver json-file --log-opt max-size=5m --log-opt max-file=3 \
         -v "$SIM_DIR:$SIM_DIR" -w "$SIM_BIN" $DBOX \
         ./nos3-single-simulator $CFG_FILE truth42sim

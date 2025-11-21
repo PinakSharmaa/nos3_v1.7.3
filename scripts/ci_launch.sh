@@ -179,7 +179,12 @@ for (( i=1; i<=$SATNUM; i++ )); do
 
     echo "$SC_NUM - Create spacecraft network..."
     echo "$SC_NUM - Connect GSW to spacecraft network..."
-    $DNETWORK connect $SC_NET cosmos-openc3-operator-1 --alias cosmos --alias active-gs
+
+    # Only try to connect the local container if we actually launched it
+    if [ "$GSW" != "none" ]; then
+        echo "$SC_NUM - Connect GSW to spacecraft network..."
+        $DNETWORK connect $SC_NET cosmos-openc3-operator-1 --alias cosmos --alias active-gs
+    fi
 
     # echo "$SC_NUM - 42..."
     # rm -rf $USER_NOS3_DIR/42/NOS3InOut
